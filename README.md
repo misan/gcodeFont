@@ -17,3 +17,8 @@ And you can see the final result in 3D
 Please note entering into the material at the begining of each symbol is done with a G1 command and leaving the material with a (probably faster) G0 command.
 
 Font is based on the ROMANS.CHR font from [NCPlot program](http://ncplot.com/stickfont/stickfont.htm) but I have included support for Spanish symbols (Ñ, ñ, á, é, í, ó and ú).
+
+Now with scale and rotation features, as shown in the next example:
+
+$ for((i=0; i<8; i++)) ; do a=`echo $i*0.785|bc`; java Romans "abc 123 ABC" 0 0 0.5 $a; done
+![rotate](https://github.com/misan/gcodeFont/blob/master/rotate.png?raw=true)
