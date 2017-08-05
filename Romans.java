@@ -1,16 +1,47 @@
 import java.util.*;
+import java.io.*;
 import java.awt.geom.*;
 
 class Romans{
   String[] f=new String[255];
   int[] l=new int[255];
   float scale=1.0f;
+
   
   Hashtable<Integer,Vector<Vector<Point2D.Float>>> t = new Hashtable<Integer,Vector<Vector<Point2D.Float>>>();
   
-  Romans(String chrFile) {
-    
-    
+  Romans(String chrFile) { // now you can open an external font file too.
+    l[32]=11; // space is not CHR files!!
+    try {
+    File fi = new File(chrFile);
+    Scanner sc = new Scanner(fi);
+    while (sc.hasNextLine()) {
+      String line = sc.nextLine(); 
+      if(line.equals("")) continue; 
+      StringTokenizer st = new StringTokenizer(line);
+      if (st.hasMoreTokens()) {
+        String c=st.nextToken();
+        c=c.substring(4); // hex char number
+        int ch = Integer.parseInt(c,16); 
+        Vector<Vector<Point2D.Float>> paths = new Vector<Vector<Point2D.Float>>();
+        Vector<Point2D.Float> path = new Vector<Point2D.Float>();
+        String width=st.nextToken();
+        int w = Integer.parseInt(width.substring(0,width.length()-1)); // remove semicolon
+        l[ch]=w; // character width array
+        while(st.hasMoreElements()) { 
+          String t=st.nextToken();
+          String[] part=t.split(","); // split two values
+          float x = Float.parseFloat(part[0]);
+          boolean fin=part[1].endsWith(";");
+          if(fin) part[1]=part[1].substring(0,part[1].length()-1);
+          float y = Float.parseFloat(part[1]);
+          path.add(new Point2D.Float(x,y));
+          if(fin || !st.hasMoreElements()) {paths.add(path); path=new Vector<Point2D.Float>();}
+        }
+        t.put(ch, paths);
+      }
+    }
+    }catch(Exception e) { System.out.println("Exception:"+e); }
   }
   
   Romans() {
@@ -144,7 +175,7 @@ class Romans{
         t.put(i,paths); //System.out.println("Char "+i+" "+paths.size());
       }   
     }
-    int getLength(int c) { return l[c];}
+    float getLength(int c) { return l[c]*scale;}
     
     int getLength(String line) {
       int total=0;
@@ -155,27 +186,53 @@ class Romans{
       return total;
     }
     
-    Vector<Vector<Point2D.Float>> print(String text) {
-     Vector<Vector<Point2D.Float>> out= new Vector<Vector<Point2D.Float>>();
-     int w=0;
-     for(int i=0; i<text.length(); i++) {
-         char c=text.charAt(i);
-         if(l[c]!=0) {
-         }
-      }
-      return out;
-    }
    
    Vector<Vector<Point2D.Float>> getChar(int c) {
     return t.get(c);
    } 
+   
+   
+   Vector<Vector<Point2D.Float>> rotate(Vector<Vector<Point2D.Float>> ch, float angle) {
+      Vector<Vector<Point2D.Float>> out = new Vector<Vector<Point2D.Float>>();
+      Vector<Vector<Point2D.Float>> paths = new Vector<Vector<Point2D.Float>>();
+      for(Vector<Point2D.Float> v : ch) {
+           Vector<Point2D.Float> path = new Vector<Point2D.Float>();
+           for (Point2D.Float p : v) {
+             Point2D.Float p1 = new Point2D.Float(); 
+             p1.setLocation(p.x*Math.cos(angle)-p.y*Math.sin(angle),p.x*Math.cos(angle)+p.y*Math.sin(angle));
+             path.add(p1);
+           }
+           paths.add(path);
+         }
+       out.addAll(paths);
+       return out;
+   }
+   
+   Vector<Vector<Point2D.Float>> getString(String line) {
+     float x=0;
+     Vector<Vector<Point2D.Float>> out = new Vector<Vector<Point2D.Float>>();
+     for(int j=0; j<line.length(); j++) { 
+       char c=line.charAt(j);
+       Vector<Vector<Point2D.Float>> ch = getChar(c); 
+       Vector<Vector<Point2D.Float>> paths = new Vector<Vector<Point2D.Float>>();
+       if(ch!=null)
+         for(Vector<Point2D.Float> v : ch) {
+           Vector<Point2D.Float> path = new Vector<Point2D.Float>();
+           for (Point2D.Float p : v) path.add(new Point2D.Float(p.x*scale+x,p.y*scale));
+           paths.add(path);
+         }
+       out.addAll(paths);
+       x+=getLength(c);
+     }
+     return out; 
+   }
    
    String gcodeString(String line, float x, float y) {
     String out=new String();
     for(int j=0; j<line.length(); j++) { 
        char c=line.charAt(j);
        out+=gcodeChar(c,x,y);
-       x+=getLength(c)*scale;
+       x+=getLength(c);
     }
     return out;
    }
@@ -183,6 +240,7 @@ class Romans{
    String gcodeChar(char c, float x, float y) { // x and y are the offset for that char gcode
     return gcodeChar( getChar(c), x, y );
    }
+   
    String gcodeChar(Vector<Vector<Point2D.Float>> p, float x, float y) { // p not null
      String out=new String("");
      if(p==null) return "";
@@ -196,6 +254,7 @@ class Romans{
      }
      return out;
   }
+  
   public static void main(String[] args) {
    float x=0,y=0;
    switch(args.length) {
