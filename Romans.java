@@ -193,13 +193,14 @@ class Romans{
    
    
    Vector<Vector<Point2D.Float>> rotate(Vector<Vector<Point2D.Float>> ch, float angle) {
+      if(angle==0) return ch;
       Vector<Vector<Point2D.Float>> out = new Vector<Vector<Point2D.Float>>();
       Vector<Vector<Point2D.Float>> paths = new Vector<Vector<Point2D.Float>>();
       for(Vector<Point2D.Float> v : ch) {
            Vector<Point2D.Float> path = new Vector<Point2D.Float>();
            for (Point2D.Float p : v) {
              Point2D.Float p1 = new Point2D.Float(); 
-             p1.setLocation(p.x*Math.cos(angle)-p.y*Math.sin(angle),p.x*Math.cos(angle)+p.y*Math.sin(angle));
+             p1.setLocation(p.x*Math.cos(angle)-p.y*Math.sin(angle),p.y*Math.cos(angle)+p.x*Math.sin(angle));
              path.add(p1);
            }
            paths.add(path);
@@ -245,10 +246,10 @@ class Romans{
      String out=new String("");
      if(p==null) return "";
      for(Vector<Point2D.Float> v : p)  {
-        Point2D.Float old=v.get(0); out+="G0 X"+(old.x*scale+x)+" Y"+(old.y*scale+y)+"\nG1 Z0\n";
+        Point2D.Float old=v.get(0); out+="G0 X"+(old.x+x)+" Y"+(old.y+y)+"\nG1 Z0\n";
         for(int j=1;j<v.size();j++) {
             Point2D.Float n=v.get(j);
-            out+="G1 X"+(n.x*scale+x)+" Y"+(n.y*scale+y)+"\n";
+            out+="G1 X"+(n.x+x)+" Y"+(n.y+y)+"\n";
         }
         out+="G0 Z10\n";
      }
@@ -256,18 +257,21 @@ class Romans{
   }
   
   public static void main(String[] args) {
-   float x=0,y=0;
+   float x=0,y=0,scale=1,angle=0;
    switch(args.length) {
-      case 0: System.out.println("\nUsage: java Romans \"text\" [offsetX] [offsetY]\n"); return;
-      case 3: y=Float.parseFloat(args[2]);
-      case 2: x=Float.parseFloat(args[1]);
+      case 0: System.out.println("\nUsage: java Romans \"text\" [offsetX] [offsetY] [scale] [angle]\n"); return;
+      case 5: angle=Float.parseFloat(args[4]);
+      case 4: scale=Float.parseFloat(args[3]);
+      case 3: y=    Float.parseFloat(args[2]);
+      case 2: x=    Float.parseFloat(args[1]);
       case 1: { 
                 String line=args[0];
                 Romans font = new Romans();
-                System.out.println(font.gcodeString(line,x,y));
+                font.scale = scale;
+                Vector<Vector<Point2D.Float>> p = font.getString(line); 
+                System.out.println("G21\n"+font.gcodeChar(font.rotate(p,angle),x,y));
               }
-   }
-  }
-  
+     }
+  } 
 }
 
