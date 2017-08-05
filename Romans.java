@@ -4,7 +4,14 @@ import java.awt.geom.*;
 class Romans{
   String[] f=new String[255];
   int[] l=new int[255];
+  float scale=1.0f;
+  
   Hashtable<Integer,Vector<Vector<Point2D.Float>>> t = new Hashtable<Integer,Vector<Vector<Point2D.Float>>>();
+  
+  Romans(String chrFile) {
+    
+    
+  }
   
   Romans() {
     f[0x21]="10; 5,21 5,7; 5,2 4,1 5,0 6,1 5,2";
@@ -168,7 +175,7 @@ class Romans{
     for(int j=0; j<line.length(); j++) { 
        char c=line.charAt(j);
        out+=gcodeChar(c,x,y);
-       x+=getLength(c);
+       x+=getLength(c)*scale;
     }
     return out;
    }
@@ -180,10 +187,10 @@ class Romans{
      String out=new String("");
      if(p==null) return "";
      for(Vector<Point2D.Float> v : p)  {
-        Point2D.Float old=v.get(0); out+="G0 X"+(old.x+x)+" Y"+(old.y+y)+"\nG1 Z0\n";
+        Point2D.Float old=v.get(0); out+="G0 X"+(old.x*scale+x)+" Y"+(old.y*scale+y)+"\nG1 Z0\n";
         for(int j=1;j<v.size();j++) {
             Point2D.Float n=v.get(j);
-            out+="G1 X"+(n.x+x)+" Y"+(n.y+y)+"\n";
+            out+="G1 X"+(n.x*scale+x)+" Y"+(n.y*scale+y)+"\n";
         }
         out+="G0 Z10\n";
      }
