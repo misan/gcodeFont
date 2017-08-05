@@ -20,5 +20,5 @@ Font is based on the ROMANS.CHR font from [NCPlot program](http://ncplot.com/sti
 
 Now with scale and rotation features, as shown in the next example:
 
-$ for((i=0; i<8; i++)) ; do a=`echo $i*0.785|bc`; java Romans "abc 123 ABC" 0 0 0.5 $a; done
+$ for((i=0; i<8; i++)) ; do a=$(echo $i*0.785|bc); java Romans "abc 123 ABC" 0 0 0.5 $a; done
 ![rotate](https://github.com/misan/gcodeFont/blob/master/rotate.png?raw=true)
