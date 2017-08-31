@@ -9,7 +9,7 @@ It is a java program (single class) that you can include it on your own project 
 *Usage: java Romans "text" [offsetX] [offsetY] [scale] [angle]*
 
 It will print to the standard output the g-code for drawing/engraving the text between quotation marks. Please remember these marks are needed.
-![symbols](https://github.com/misan/gcodeFont/blob/master/gcodeFont.gcode)
+![symbols](https://github.com/misan/gcodeFont/blob/master/gcodeFont.png?raw=true)
 
 The output for the text "abc 123 ABC" is containted in the sample file (https://github.com/misan/gcodeFont/blob/master/abc123ABC.gcode)
 
